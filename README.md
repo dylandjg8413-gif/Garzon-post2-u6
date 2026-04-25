@@ -1,130 +1,116 @@
-# Post-Contenido 2 - Seguridad Móvil
+Post-Contenido 2
 
-## Implementación de Certificate Pinning en Flutter
+Implementación de Seguridad HTTPS con Certificate Pinning en Flutter
 
-## Descripción
+Descripción
 
-En este laboratorio se desarrolló una aplicación móvil en Flutter que implementa certificate pinning para asegurar la comunicación HTTPS. Se utilizó la librería Dio junto con un SecurityContext personalizado que permite validar únicamente un certificado específico, evitando conexiones con servidores no confiables.
+En este laboratorio se desarrolló una aplicación en Flutter enfocada en reforzar la seguridad de las comunicaciones HTTPS mediante la técnica de certificate pinning.
 
-El proyecto simula un entorno de aplicación bancaria donde la seguridad en la comunicación es un aspecto crítico.
+Se utilizó un cliente HTTP personalizado que valida únicamente un certificado específico, evitando ataques como Man-in-the-Middle (MITM). La aplicación simula un entorno donde la integridad de los datos transmitidos es crítica, como en sistemas financieros o aplicaciones sensibles.
 
-## Objetivo del laboratorio
+Objetivo del laboratorio
 
-Implementar mecanismos de seguridad en la capa de red mediante:
+Implementar medidas de seguridad en la comunicación de red:
 
-* Validación de certificados (certificate pinning)
-* Manejo de errores TLS
-* Almacenamiento seguro de credenciales
-* Inclusión de headers de autenticación
+Validar certificados digitales de forma estricta
+Detectar errores en conexiones seguras
+Proteger credenciales del usuario
+Automatizar encabezados de autenticación
 
-## Tecnologías utilizadas
+Tecnologías utilizadas
+Flutter
+Dart
+Dio (cliente HTTP)
+flutter_secure_storage
+OpenSSL
 
-* Flutter
-* Dart
-* Dio
-* flutter_secure_storage
-* OpenSSL
-
-## Configuración del proyecto
-
-### Instalación de dependencias
-
-```text
+Configuración del proyecto
+Instalación de dependencias
 flutter pub get
-```
-
-### Ejecución
-
-```text
+Ejecución
 flutter run
-```
 
-## Configuración de seguridad
+Configuración de seguridad
 
-Se generó un certificado autofirmado para pruebas utilizando OpenSSL:
+Para pruebas, se generó un certificado digital autofirmado:
 
-```text
-openssl req -x509 -newkey rsa:2048 -keyout assets/certs/server_key.pem -out assets/certs/server_cert.pem -days 365 -nodes -subj "/CN=api.bancasegura.test/O=BancaSegura/C=CO"
-```
+openssl req -x509 -newkey rsa:2048 -keyout assets/certs/key.pem -out assets/certs/cert.pem -days 365 -nodes -subj "/CN=secure.api.test/O=SecureApp/C=CO"
 
-El certificado utilizado por la aplicación es:
+El certificado utilizado en la app:
 
-```text
-assets/certs/server_cert.pem
-```
+assets/certs/cert.pem
 
-La clave privada no se incluye en el repositorio.
+Implementación
 
-## Implementación
+1. Validación de certificado
 
-### 1. Certificate Pinning
+Se configuró un entorno seguro donde solo se acepta el certificado incluido en la aplicación, bloqueando cualquier otro intento de conexión.
 
-Se configuró un SecurityContext sin certificados de confianza por defecto, cargando únicamente el certificado definido en el proyecto.
+2. Cliente HTTP personalizado
 
-### 2. Cliente HTTP
+Se utilizó Dio con configuración especial para integrar validación SSL personalizada.
 
-Se utilizó Dio con un adaptador personalizado para integrar el contexto de seguridad y validar el certificado del servidor.
+3. Manejo de errores TLS
 
-### 3. Manejo de errores
+Se capturan errores de tipo HandshakeException y se manejan mostrando mensajes adecuados al usuario.
 
-Se implementó un manejador que detecta errores de tipo HandshakeException y muestra mensajes comprensibles al usuario.
+4. Protección de datos
 
-### 4. Almacenamiento seguro
+Se almacenan tokens de forma segura utilizando almacenamiento cifrado.
 
-Se utilizó flutter_secure_storage para guardar el token de autenticación.
+5. Interceptor de solicitudes
 
-### 5. Interceptor de red
+Se implementó un interceptor que añade automáticamente el token en cada petición HTTP.
 
-Se implementó un interceptor que agrega automáticamente el header Authorization en cada solicitud.
 
-## Evidencias
 
-Las evidencias del laboratorio se encuentran en la carpeta:
+Checkpoint 1: Conexión segura
+La aplicación se conecta correctamente al servidor
+Se valida el certificado
+Respuesta exitosa (HTTP 200)
 
-```text
-/evidencias
-```
+Evidencia:
 
-### Checkpoint 1: Conexión segura
+![Checkpoint 1](screenshots/1.jpeg)
 
-Se evidencia una conexión exitosa con el certificado válido (respuesta HTTP 200).
+Checkpoint 2: Rechazo de certificado
+Se bloquea conexión con certificado inválido
+Se genera error de seguridad
+No se permite acceso
 
-### Checkpoint 2: Rechazo de certificado
+Evidencia:
 
-Se muestra el rechazo de una conexión con certificado inválido, generando un error de tipo HandshakeException.
+![Checkpoint 2](screenshots/2.jpeg)
 
-### Checkpoint 3: Header de autorización
+Checkpoint 3: Header de autorización
+Se incluye automáticamente el token
+Se valida en cada solicitud HTTP
 
-Se evidencia la inclusión del header Authorization en las solicitudes HTTP.
+Evidencia:
 
-## Estructura del proyecto
+![Checkpoint 3](screenshots/3.png)
 
-```text
+Checkpoint 4: Flujo completo
+Funcionamiento completo del sistema
+Seguridad activa en todas las peticiones
+Sin errores en ejecución
+
+Evidencia:
+
+![Checkpoint 4](screenshots/4.jpeg)
+
+Estructura del proyecto
 lib/
  ├── network/
- │    ├── api_client.dart
- │    ├── security_error_handler.dart
- │    └── token_interceptor.dart
+ │    ├── http_client.dart
+ │    ├── error_handler.dart
+ │    └── auth_interceptor.dart
  ├── screens/
- │    └── home_screen.dart
+ │    └── main_screen.dart
  └── main.dart
 
 assets/
  └── certs/
-      └── server_cert.pem
-
-evidencias/
-```
-
-## Consideraciones de seguridad
-
-* No se incluyen claves privadas en el repositorio
-* Se valida estrictamente el certificado del servidor
-* Se evita el uso de conexiones inseguras
-* Se protege la información sensible del usuario
-
-## Control de versiones
-
-El repositorio incluye commits descriptivos en modo imperativo, cumpliendo con los requisitos del laboratorio.
+      └── cert.pem
 
 
